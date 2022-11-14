@@ -1,0 +1,24 @@
+name: Deployment
+on:
+  push:
+    branches:
+      - main
+jobs:
+  App-Build-Push-S3-Bucket:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3
+      - name: Use Node.js for build
+        uses: actions/setup-node@v3
+      - name: Install Node Modules and Build
+        run: npm ci
+        run: npm run build
+      - name: Set AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: $${secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: $${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-region: $${{secrets.AWS_REGION}}
+      - name: Copy build folder to S3 Bucket
+        run: aws s3 sync ./build/. s3://react-app-github
